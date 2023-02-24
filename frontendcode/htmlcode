@@ -1,0 +1,106 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Table, Form, Button } from 'react-bootstrap';
+
+function CustomerTable() {
+  const [customers, setCustomers] = useState([]);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [editingCustomerId, setEditingCustomerId] = useState(null);
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/api/customers')
+      .then(response => setCustomers(response.data))
+      .catch(error => console.log(error));
+  }, []);
+
+  function handleNameChange(event) {
+    setName(event.target.value);
+  }
+
+  function handleEmailChange(event) {
+    setEmail(event.target.value);
+  }
+
+  function handlePhoneChange(event) {
+    setPhone(event.target.value);
+  }
+
+  function handleAddCustomer(event) {
+    event.preventDefault();
+
+    axios.post('http://localhost:3001/api/customers', {
+      name,
+      email,
+      phone,
+    })
+      .then(response => {
+        setCustomers([...customers, response.data]);
+        setName('');
+        setEmail('');
+        setPhone('');
+      })
+      .catch(error => console.log(error));
+  }
+
+  function handleEditCustomer(customerId) {
+    const customerToEdit = customers.find(customer => customer._id === customerId);
+    setName(customerToEdit.name);
+    setEmail(customerToEdit.email);
+    setPhone(customerToEdit.phone);
+    setEditingCustomerId(customerId);
+  }
+
+  function handleUpdateCustomer(event) {
+    event.preventDefault();
+
+    axios.put(`http://localhost:3001/api/customers/${editingCustomerId}`, {
+      name,
+      email,
+      phone,
+    })
+      .then(response => {
+        const updatedCustomers = customers.map(customer => {
+          if (customer._id === editingCustomerId) {
+            return response.data;
+          } else {
+            return customer;
+          }
+        });
+        setCustomers(updatedCustomers);
+        setName('');
+        setEmail('');
+        setPhone('');
+        setEditingCustomerId(null);
+      })
+      .catch(error => console.log(error));
+  }
+
+  function handleDeleteCustomer(customerId) {
+    axios.delete(`http://localhost:3001/api/customers/${customerId}`)
+      .then(response => {
+        const remainingCustomers = customers.filter(customer => customer._id !== customerId);
+        setCustomers(remainingCustomers);
+      })
+      .catch(error => console.log(error));
+  }
+
+  return (
+    <div className="container">
+      <h1>Customer Table</h1>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map(customer => (
+            <tr key={customer._id}>
+              <td>{
+          )
+              }
